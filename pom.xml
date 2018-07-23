@@ -45,6 +45,25 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 		
 		<!-- https://github.com/codecentric/spring-boot-admin -->
 		<spring-boot-admin.version>1.5.0</spring-boot-admin.version>
+		
+		<!-- 
+			# About lombok 1.18.0
+			* with 1.18.0 I had unit tests fail in webui-api. 
+			  Example de.metas.ui.web.view.ViewIdTests.test_ofViewIdString_NullWindowId:
+			  expected: de.metas.ui.web.view.ViewId<ViewId(windowId=5141428, viewId=5141428-B, parts=[5141428, B])> but was: de.metas.ui.web.view.ViewId<ViewId(windowId=5141428, viewId=5141428-B, parts=[5141428, B])>
+			  (note that the strings are equal)
+			# About lombok 1.16.22
+			* with 1.16.16 i also had unit tests fail, *but not in eclipse*
+			* *some* of the fails i could fix via @EqualsAndHashCode(doNotUseGetters = true).
+			  Example: https://github.com/metasfresh/metasfresh/commit/e2393a63eaa0830f71dc48de865f3210a71e69e4 failed like this before I added "doNotUseGetters"
+			  Expecting:
+				 <"1§&§2§&§3§&§4 (AttributesKey@71f54b4e)">
+				to be equal to:
+				 <"1§&§2§&§3§&§4 (AttributesKey@3d0f100e)">
+				but was not.
+					at de.metas.material.event.commons.AttributesKeyTest.ofAttributeValueIds(AttributesKeyTest.java:78)
+		-->
+		<lombok.version>1.16.16</lombok.version>
 	</properties>
 
 	<modules>
@@ -111,7 +130,13 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<artifactId>itext</artifactId>
 				<version>${itext.version}</version>
 			</dependency>
-
+			
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+			</dependency>
+			
             <!-- Thx for the two fonts to http://ansuz.sooke.bc.ca/page/fonts ^^ -->
 			<dependency>
 				<groupId>jp.osdn.ocra</groupId>
