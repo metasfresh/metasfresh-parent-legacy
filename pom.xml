@@ -306,7 +306,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 						<dependency>
 							<groupId>org.codehaus.mojo</groupId>
 							<artifactId>extra-enforcer-rules</artifactId>
-							<version>1.0-beta-4</version>
+							<version>1.0-beta-9</version>
 						</dependency>
 					</dependencies>
 				</plugin>
