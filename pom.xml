@@ -63,7 +63,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				but was not.
 					at de.metas.material.event.commons.AttributesKeyTest.ofAttributeValueIds(AttributesKeyTest.java:78)
 		-->
-		<lombok.version>1.16.16</lombok.version>
+		<lombok.version>1.18.2</lombok.version>
 	</properties>
 
 	<modules>
