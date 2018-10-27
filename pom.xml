@@ -57,13 +57,15 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 			* *some* of the fails i could fix via @EqualsAndHashCode(doNotUseGetters = true).
 			  Example: https://github.com/metasfresh/metasfresh/commit/e2393a63eaa0830f71dc48de865f3210a71e69e4 failed like this before I added "doNotUseGetters"
 			  Expecting:
-				 <"1ยง&ยง2ยง&ยง3ยง&ยง4 (AttributesKey@71f54b4e)">
+				 <"1ง&ง2ง&ง3ง&ง4 (AttributesKey@71f54b4e)">
 				to be equal to:
-				 <"1ยง&ยง2ยง&ยง3ยง&ยง4 (AttributesKey@3d0f100e)">
+				 <"1ง&ง2ง&ง3ง&ง4 (AttributesKey@3d0f100e)">
 				but was not.
 					at de.metas.material.event.commons.AttributesKeyTest.ofAttributeValueIds(AttributesKeyTest.java:78)
 		-->
 		<lombok.version>1.18.2</lombok.version>
+		
+		<springfox-swagger.version>2.9.2</springfox-swagger.version>
 	</properties>
 
 	<modules>
@@ -137,6 +139,13 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<version>${lombok.version}</version>
 			</dependency>
 			
+			<!-- this also contains the javax.annotations -->
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>annotations</artifactId>
+				<version>2.0.1</version>
+			</dependency>
+			
             <!-- Thx for the two fonts to http://ansuz.sooke.bc.ca/page/fonts ^^ -->
 			<dependency>
 				<groupId>jp.osdn.ocra</groupId>
@@ -193,7 +202,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<plugin>
 					<groupId>org.jvnet.jaxb2.maven2</groupId>
 					<artifactId>maven-jaxb2-plugin</artifactId>
-					<version>0.13.1</version>
+					<version>0.14.0</version>
 				</plugin>
 
 				<plugin>
@@ -604,7 +613,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 					* http://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html -->
 				<argLine></argLine>
 
-				<env.MF_VERSION>LOCAL-NO-RELEASE</env.MF_VERSION>
+				<env.MF_VERSION>10.0.0-LOCAL-NO-RELEASE</env.MF_VERSION>
 				<env.MF_RELEASE_VERSION>0.0</env.MF_RELEASE_VERSION> <!-- needs to be like this for the launch4j plugin's sake -->
 				<env.BUILD_TAG>LOCAL-NO-RELEASE</env.BUILD_TAG>
 				<env.BUILD_URL>LOCAL-NO-RELEASE</env.BUILD_URL>
@@ -686,6 +695,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 					<name>env.BUILD_NUMBER</name>
 				</property>
 			</activation>
+			
 			<repositories>
 				<!-- this additional repo's parameters can be set from outside. It usually corresponds to a (task-)branch -->
 				<repository>
@@ -694,6 +704,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 					<url>${deploy-repo-url}</url>
 				</repository>
 			</repositories>
+			
 			<build>
 				<plugins>
 					<plugin>
