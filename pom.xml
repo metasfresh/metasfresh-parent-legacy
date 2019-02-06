@@ -39,12 +39,9 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 		-->
 		<assertj.version>3.8.0</assertj.version>
 
-		<!-- right now 6.2.2 is the latest, but there we suffer from http://community.jaspersoft.com/jasperreports-library/issues/7521 -->
-		<jasperreports.version>6.2.1</jasperreports.version>
+		<jasperreports.version>6.5.1</jasperreports.version>
 
-		<!-- FRESH-397: jasper 6.2.1 uses poi and zxing with theses versions -->
-		<!-- actually, jasper-6.2.1 accidentally uses 2.1.7.js5-SNAPSHOT, but we don't-->
-		<itext.version>2.1.7.js5</itext.version>
+		<itext.version>2.1.7.js6</itext.version>
 	</properties>
 
 	<modules>
@@ -112,6 +109,13 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<version>${itext.version}</version>
 			</dependency>
 
+			<!-- this also contains the javax.annotations -->
+			<dependency>
+				<groupId>com.google.code.findbugs</groupId>
+				<artifactId>annotations</artifactId>
+				<version>2.0.1</version>
+			</dependency>
+			
             <!-- Thx for the two fonts to http://ansuz.sooke.bc.ca/page/fonts ^^ -->
 			<dependency>
 				<groupId>jp.osdn.ocra</groupId>
@@ -224,27 +228,21 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.20</version>
+					<version>2.22.0</version>
 					<configuration>
-					    <!-- Jacoco prepare-agent builds some command-line params without -->
-						<!-- which jacoco will not instrument. Hence it is important to add -->
-						<!-- those command-line params here (${argLine} holds those params) -->
-						<argLine>${argLine} -Xms256m -Xmx2048m</argLine>
+					    <!-- Jacoco prepare-agent builds some command-line params without which jacoco will not instrument. 
+						     Hence it is important to add those command-line params where @{argLine} holds those params.
+						     Note that the @ is not a typo. 
+						     See https://www.jacoco.org/jacoco/trunk/doc/prepare-agent-mojo.html and https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html#argLine -->
+						<argLine>@{argLine} -Xms256m -Xmx2048m</argLine>
 						<!-- From http://www.jacoco.org/jacoco/trunk/doc/maven.html :
 							When using the maven-surefire-plugin or maven-failsafe-plugin you must not use a forkCount of 0 
 							or set the forkMode to never as this would prevent the execution of the tests with the javaagent set and no coverage would be recorded. 
 						-->
 						<forkCount>1</forkCount>
 						
-						<!-- Hope to solve 
-						Spring boot related tests fail on jenkins sometimes https://github.com/metasfresh/metasfresh/issues/2988 
-						The problem might be related to the static variable Adempiere.instance which holds a SpringContext -->
-						<!-- reuseForks>false</reuseForks -->
-						<!-- reuseForks=false solved the problem, but we can't live with the increase in build time
-						<reuseForks>true</reuseForks> -->
-						
-						<!-- random might be a good idea in general, but due to our known problems, prefer determinability 
-						Again, see Spring boot related tests fail on jenkins sometimes https://github.com/metasfresh/metasfresh/issues/2988 -->
+						<!-- 'random' might be a good idea in general, but due to our known problems, prefer determinability 
+							Again, see Spring boot related tests fail on jenkins sometimes https://github.com/metasfresh/metasfresh/issues/2988 -->
 						<runOrder>filesystem</runOrder>
 						<!-- runOrder>random</runOrder -->
 
@@ -281,7 +279,6 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
-					<!-- version>1.4.1</version -->
 					<version>3.0.0-M1</version>
 					<dependencies>
 						<!-- needed for banDuplicateClasses -->
@@ -296,7 +293,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<plugin>
 					<groupId>org.jacoco</groupId>
 					<artifactId>jacoco-maven-plugin</artifactId>
-					<version>0.7.9</version>
+					<version>0.8.1</version>
 				</plugin>
 
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
@@ -341,11 +338,11 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 								</pluginExecution>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>org.codehaus.mojo</groupId>
-										<artifactId>jasperreports-maven-plugin</artifactId>
-										<versionRange>[1.0-beta-2,)</versionRange>
+										<groupId>com.alexnederlof</groupId>
+										<artifactId>jasperreports-plugin</artifactId>
+										<versionRange>[2.0,)</versionRange>
 										<goals>
-											<goal>compile-reports</goal>
+											<goal>jasper</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
@@ -365,7 +362,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 	<profiles>
 		<profile>
 			<!-- 
-				The enforcer plgugin can be a tremendous nuisance.
+				The enforcer plugin can be a tremendous nuisance.
 				It fails because we use version ranges in our parent pom declarations with this outout:
 
 [WARNING] Could not find org.jmockit:jmockit:jar:1.30:test at null
@@ -373,7 +370,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached in the local repository, resolution will not be reattempted...
   de.metas:de.metas.parent:pom:(1.0.0,3)
 
-				However, when runnung on jenkins, we resolve the parent version anyways (using the maven-versions-plugin) 
+				However, when running on jenkins, we resolve the parent version anyways (using the maven-versions-plugin) 
 				and *then* we can benefit a lot from making sure that the plugin versions are not a moving target
 			 -->
 			<id>enforcer-profile</id>
@@ -493,6 +490,15 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 											<artifactId>elasticsearch</artifactId>
 											<ignoreClasses>
 												<ignoreClass>org.joda.*</ignoreClass>
+											</ignoreClasses>
+										</dependency>
+
+										<!-- the embedded tomcat of spring-boot 1.5.3.RELEASE comes with baked-in javax.persistance api classes.. -->
+										<dependency>
+											<groupId>org.apache.tomcat.embed</groupId>
+											<artifactId>tomcat-embed-core</artifactId>
+											<ignoreClasses>
+												<ignoreClass>javax.persistence.*</ignoreClass>
 											</ignoreClasses>
 										</dependency>
 
@@ -674,6 +680,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 						<artifactId>jacoco-maven-plugin</artifactId>
 						<executions>
 							<execution>
+								<!-- https://www.eclemma.org/jacoco/trunk/doc/prepare-agent-mojo.html -->
 								<id>jacoco-prepare-agent</id>
 								<goals>
 									<goal>prepare-agent</goal>
@@ -706,6 +713,8 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 
 			<build>
 				<plugins>
+					<!-- outputDirectory is the same as jasperreports-maven-plugin's outputDirectory -->
+					<!-- jrxmls are compiled into jasper files, they don't need to be copied, so we exclude *.jrxml -->
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
 						<version>2.6</version>
@@ -717,13 +726,12 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 									<goal>copy-resources</goal>
 								</goals>
 								<configuration>
-									<!-- same as jasperreports-maven-plugin's outputDirectory -->
 									<outputDirectory>${project.build.directory}/jasper</outputDirectory>
 									<resources>
 										<resource>
 											<directory>src/main/jasperreports</directory>
 											<excludes>
-												<exclude>**/*.jrxml</exclude> <!-- jrxmls are compiled into jasper files, they don't need to be copied -->
+												<exclude>**/*.jrxml</exclude>
 											</excludes>
 										</resource>
 									</resources>
@@ -733,38 +741,30 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 					</plugin>
 
 					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>jasperreports-maven-plugin</artifactId>
-						<version>1.0-beta-2</version>
+						<groupId>com.alexnederlof</groupId>
+						<artifactId>jasperreports-plugin</artifactId>
+						<version>2.0</version>
 						<configuration>
+				<!-- These are the default configurations: -->
+							<compiler>net.sf.jasperreports.engine.design.JRJdtCompiler</compiler>
+							<sourceDirectory>src/main/jasperreports</sourceDirectory>
 							<outputDirectory>${project.build.directory}/jasper</outputDirectory>
+							<outputFileExt>.jasper</outputFileExt>
+							<xmlValidation>true</xmlValidation>
+							<verbose>false</verbose>
+							<numberOfThreads>4</numberOfThreads>
+							<failOnMissingSourceDirectory>true</failOnMissingSourceDirectory>
+							<sourceScanner>org.codehaus.plexus.compiler.util.scan.StaleSourceScanner</sourceScanner>
 						</configuration>
-
+						<executions>
+							<execution>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>jasper</goal>
+								</goals>
+							</execution>
+						</executions>
 						<dependencies>
-							<!-- for whatever reason, if we don't set this version explicitly,
-								the plugin will try to work with 2.1.7.js5-SNAPSHOT -->
-							<dependency>
-								<groupId>com.lowagie</groupId>
-								<artifactId>itext</artifactId>
-								<version>${itext.version}</version>
-							</dependency>
-
-							<!-- note that excluding jasperreports:jasperreports version 1.2 doesn't
-								work even if we don't need it, see http://stackoverflow.com/questions/34193602/how-to-exclude-jasperreports-artifact-from-jasperreports-maven-plugin/34198348 -->
-							<dependency>
-								<groupId>org.codehaus.mojo</groupId>
-								<artifactId>jasperreports-maven-plugin</artifactId>
-								<version>1.0-beta-2</version>
-							</dependency>
-							<dependency>
-								<groupId>net.sf.jasperreports</groupId>
-								<artifactId>jasperreports</artifactId>
-								<version>${jasperreports.version}</version>
-							</dependency>
-
-							<!-- required to compile reports with barcodes -->
-							<!-- FRESH-397: see if we can remove it, too.  -->
-							<!-- 1876 It's needed to be able to run jaspers with barcodes-->
 							<dependency>
 								<groupId>net.sf.barcode4j</groupId>
 								<artifactId>barcode4j-fop-ext-complete</artifactId>
@@ -779,13 +779,6 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 							</dependency>
 
 						</dependencies>
-						<executions>
-							<execution>
-								<goals>
-									<goal>compile-reports</goal>
-								</goals>
-							</execution>
-						</executions>
 					</plugin>
 
 					<plugin>
