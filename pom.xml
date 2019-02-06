@@ -39,9 +39,12 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 		-->
 		<assertj.version>3.8.0</assertj.version>
 
-		<jasperreports.version>6.5.1</jasperreports.version>
+		<!-- right now 6.2.2 is the latest, but there we suffer from http://community.jaspersoft.com/jasperreports-library/issues/7521 -->
+		<jasperreports.version>6.2.1</jasperreports.version>
 
-		<itext.version>2.1.7.js6</itext.version>
+		<!-- FRESH-397: jasper 6.2.1 uses poi and zxing with theses versions -->
+		<!-- actually, jasper-6.2.1 accidentally uses 2.1.7.js5-SNAPSHOT, but we don't-->
+		<itext.version>2.1.7.js5</itext.version>
 	</properties>
 
 	<modules>
