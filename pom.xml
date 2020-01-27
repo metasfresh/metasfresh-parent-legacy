@@ -66,29 +66,20 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 		<lombok.version>1.18.2</lombok.version>
 		
 		<springfox-swagger.version>2.9.2</springfox-swagger.version>
+
+		<mockito.version>2.7.22</mockito.version>
+		
+		<!-- with 5.4.2 we can't run junit tests from eclipse ("no tests found") -->
+		<junit-jupiter.version>5.4.1</junit-jupiter.version>
+
+		<logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
+
 	</properties>
 
 	<modules>
 		<!-- this module provides a shared set of assembly descriptors-->
 		<module>assemblies</module>
 	</modules>
-
-<!-- 
-	<repositories>
-
-		<repository>
-			<id>metasfresh-repo</id>
-			<name>metasfresh maven repository (master branch)</name>
-			<releases>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<url>https://repo.metasfresh.com/content/groups/mvn-master/</url>
-		</repository>
-
-	</repositories>
- -->
 
 	<pluginRepositories>
 		<!-- our main repo is also our plugin repo; also see https://maven.apache.org/pom.html#Plugin_Repositories -->
@@ -112,13 +103,118 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 		</repository>
 	</distributionManagement>
 
-	<dependencyManagement>
+	<dependencies>
+		<!-- Using our own artifact, see 
+			https://github.com/json-snapshot/json-snapshot.github.io/pull/12#issuecomment-462660733
+			and 
+			https://github.com/json-snapshot/json-snapshot.github.io/issues/9#issuecomment-462880359 -->
+		<!-- This lib has 
+		    * two different versions (1.2.0 and 1.3.2) of junit-platform-commons
+		    * two different versions (1.2.0 and 1.3.2) of junit-platform-engine
+		    * two different versions (5.1.1 and 5.3.2) of junit-jupiter-api
+		    * two different versions (2.23.0 and 2.23.4) of mockito-core
+			in its dependency tree. That's why we exclude them and then explicitly add them. 
+			Also: mockito-core, jackson-databind, jackson-core, commons-lang3 and slf4j-api are used throughout the system, some we try our luck with the respective existing versions
+			-->
+		<dependency>
+			<groupId>io.github.json-snapshot</groupId>
+			<artifactId>json-snapshot-PR</artifactId>
+			<version>1.0.20</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-commons</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-engine</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-engine</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+				<exclusion>
+					<!-- exclude it here; explicitly add it further down; workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=545849 -->
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-launcher</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.mockito</groupId>
+					<artifactId>mockito-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-databind</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.fasterxml.jackson.core</groupId>
+					<artifactId>jackson-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>commons-lang3</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.jupiter</groupId>
+					<artifactId>junit-jupiter-params</artifactId>
+				</exclusion>
+			</exclusions>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${junit-jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=545849 -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>1.4.1</version>
+			<scope>test</scope>
+		</dependency>
+
+
+
+	</dependencies>
+
+	<dependencyManagement>
 		<dependencies>
+
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
 				<version>${assertj.version}</version>
+				<scope>test</scope>
 			</dependency>
 
 			<dependency>
@@ -158,11 +254,44 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<version>0.2.1</version>
 			</dependency>
 
+			<dependency>
+				<groupId>net.logstash.logback</groupId>
+				<artifactId>logstash-logback-encoder</artifactId>
+				<version>${logstash-logback-encoder.version}</version>
+			</dependency>
 		</dependencies>
 
 	</dependencyManagement>
 
 	<build>
+		<plugins>
+			<plugin>
+				<!-- always add the git information to our artifacts, so we can know where we are coming from -->
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>4.0.0</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+						<phase>initialize</phase>
+					</execution>
+				</executions>
+				<configuration>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+					<!--includeOnlyProperties>
+						For starts, we naively include everything.
+						Also see https://github.com/git-commit-id/git-commit-id-maven-plugin/blob/master/maven/docs/using-the-plugin.md
+						<includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
+						<includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+					</includeOnlyProperties-->
+					<commitIdGenerationMode>full</commitIdGenerationMode>
+				</configuration>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
@@ -271,6 +400,9 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 						-->
 						<forkCount>1</forkCount>
 
+						<!-- Required to be false in order to have google Reflections work correctly. See https://github.com/metasfresh/metasfresh/issues/4773. -->
+						<useSystemClassLoader>false</useSystemClassLoader>
+						
 						<!-- 'random' might be a good idea in general, but due to our known problems, prefer determinability 
 						     Again, see Spring boot related tests fail on jenkins sometimes https://github.com/metasfresh/metasfresh/issues/2988 -->
 						<runOrder>filesystem</runOrder>
@@ -309,6 +441,13 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-enforcer-plugin</artifactId>
+					<!-- 3.0.0-M2 gives me "Some plugins are missing valid versions" 
+						 when building downstream projects (i.e. metasfresh),
+						 although I set the version here in build/pluginManagenemt management.
+						Example:
+						org.apache.maven.plugins:maven-clean-plugin.    The version currently in use is 3.0.0
+				
+						Note that "3.0.0" is the version that I specified in pluginManagenemt -->
 					<version>3.0.0-M1</version>
 					<dependencies>
 						<!-- needed for banDuplicateClasses -->
@@ -385,15 +524,13 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				</plugin>
 			</plugins>
 		</pluginManagement>
-
-
 	</build>
 
 	<profiles>
 		<profile>
 			<!-- 
 				The enforcer plugin can be a tremendous nuisance.
-				It fails because we use version ranges in our parent pom declarations with this outout:
+				It fails because we use version ranges in our parent pom declarations with this output:
 
 [WARNING] Could not find org.jmockit:jmockit:jar:1.30:test at null
 [WARNING] Rule 0: org.apache.maven.plugins.enforcer.RequirePluginVersions failed with message:
@@ -418,7 +555,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 									That version didn't support the way, we configured it and failed with an
 									error message. This shall not happen again. -->
 								<requirePluginVersions>
-									<message>!! We need to have the plugin version under control to avoid build failures due to maven releasing a new plugin versionm !!</message>
+									<message>!! We need to have the plugin version under control to avoid build failures due to maven releasing a new plugin version !!</message>
 									<banLatest>true</banLatest>
 									<banRelease>true</banRelease>
 									<banSnapshots>true</banSnapshots>
@@ -445,6 +582,9 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 
 								<banDuplicateClasses>
 									<ignoreClasses>
+
+										<!-- https://github.com/mojohaus/extra-enforcer-rules/issues/42 -->
+										<ignoreClass>*.module-info</ignoreClass>
 
 										<!-- itext-2.1.7 has two different versions as dependences -->
 										<ignoreClass>org.bouncycastle.*</ignoreClass>
@@ -592,6 +732,47 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 			</build>
 		</profile>
 		
+		<profile>
+			<!-- If there is a sql directory, then this profile will activate and 
+				zip up the migration SQL files in that directory. Note the property "migration-sql-basedir" 
+				needs to be defined in that case -->
+			<id>postgres</id>
+			<activation>
+				<file>
+					<exists>src/main/sql/postgresql/system</exists>
+				</file>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<dependencies>
+							<dependency>
+								<groupId>de.metas</groupId>
+								<artifactId>metasfresh-assemblies</artifactId>
+								<!-- version>${metasfresh.assembly.descriptor.version}</version -->
+								<version>[1.0.0,10.0.0]</version>
+							</dependency>
+						</dependencies>
+						<executions>
+							<execution>
+								<id>make-postgresql-assembly</id> <!-- this is used for inheritance merges -->
+								<phase>package</phase> <!-- bind to the packaging phase -->
+								<goals>
+									<goal>single</goal>
+								</goals>
+								<configuration>
+									<descriptorRefs>
+										<descriptorRef>migration_postgresql_system</descriptorRef>
+									</descriptorRefs>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
 		<!-- 
 			If the environment variable MF_VERSION is not set, it means that
 			we are not building on jenkins, so we substitute the value "LOCAL-NO-RELEASE" instead. 
@@ -743,8 +924,6 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 				</file>
 			</activation>
 
-
-
 			<build>
 				<plugins>
 					<!-- outputDirectory is the same as jasperreports-maven-plugin's outputDirectory -->
@@ -799,6 +978,32 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 							</execution>
 						</executions>
 						<dependencies>
+							<dependency>
+								<groupId>net.sf.jasperreports</groupId>
+								<artifactId>jasperreports</artifactId>
+								<version>${jasperreports.version}</version>
+							</dependency>
+
+							<!-- Thx to https://stackoverflow.com/questions/23756133/the-jrxml-file-compilation-failed-due-to-built-in-missing-in-ant -->
+							<dependency>
+								<groupId>net.sf.jasperreports</groupId>
+								<artifactId>jasperreports-functions</artifactId>
+								<version>${jasperreports.version}</version>
+							</dependency>
+							<dependency>
+								<groupId>joda-time</groupId>
+								<artifactId>joda-time</artifactId>
+								<version>2.1</version>
+							</dependency>
+
+							<dependency>
+								<!-- avoid compile error 
+								Error while compiling Jasper reports: java.lang.NoClassDefFoundError: org/springframework/beans/factory/support/BeanDefinitionRegistry: org.springframework.beans.factory.support.BeanDefinitionRegistry
+								-->
+								<groupId>org.springframework</groupId>
+								<artifactId>spring-beans</artifactId>
+								<version>4.3.8.RELEASE</version>
+							</dependency>
 							<dependency>
 								<groupId>net.sf.barcode4j</groupId>
 								<artifactId>barcode4j-fop-ext-complete</artifactId>
