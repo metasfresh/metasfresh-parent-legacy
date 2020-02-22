@@ -57,9 +57,9 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 			* *some* of the fails i could fix via @EqualsAndHashCode(doNotUseGetters = true).
 			  Example: https://github.com/metasfresh/metasfresh/commit/e2393a63eaa0830f71dc48de865f3210a71e69e4 failed like this before I added "doNotUseGetters"
 			  Expecting:
-				 <"1§&§2§&§3§&§4 (AttributesKey@71f54b4e)">
+				 <"1ï¿½&ï¿½2ï¿½&ï¿½3ï¿½&ï¿½4 (AttributesKey@71f54b4e)">
 				to be equal to:
-				 <"1§&§2§&§3§&§4 (AttributesKey@3d0f100e)">
+				 <"1ï¿½&ï¿½2ï¿½&ï¿½3ï¿½&ï¿½4 (AttributesKey@3d0f100e)">
 				but was not.
 					at de.metas.material.event.commons.AttributesKeyTest.ofAttributeValueIds(AttributesKeyTest.java:78)
 		-->
@@ -69,8 +69,8 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 
 		<mockito.version>2.7.22</mockito.version>
 		
-		<!-- with 5.4.2 we can't run junit tests from eclipse ("no tests found") -->
-		<junit-jupiter.version>5.4.1</junit-jupiter.version>
+		<junit-jupiter.version>5.6.0</junit-jupiter.version>
+		<junit-platform-launcher.version>1.6.0</junit-platform-launcher.version>
 
 		<logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
 
@@ -119,6 +119,10 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<exclusion>
 					<groupId>org.junit.vintage</groupId>
 					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.junit.platform</groupId>
+					<artifactId>junit-platform-runner</artifactId>
 				</exclusion>
 				<exclusion>
 					<!-- exclude it here; explicitly add it further down; workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=545849 -->
@@ -177,7 +181,7 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.4.1</version>
+			<version>${junit-platform-launcher.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
