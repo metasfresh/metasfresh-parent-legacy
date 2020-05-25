@@ -104,6 +104,13 @@ Default parent pom with common settings (e.g. java file encoding) to be used by 
 				<groupId>net.sf.jasperreports</groupId>
 				<artifactId>jasperreports</artifactId>
 				<version>${jasperreports.version}</version>
+				<exclusions>
+					<!--  exclude olap4j because we don't need it and jasperreports 6.2.1 uses the rather obscure version 0.9.7.309-JS-3 which i can't find -->
+					<exclusion>
+						<groupId>org.olap4j</groupId>
+						<artifactId>olap4j</artifactId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 
 			<dependency>
@@ -748,7 +755,7 @@ Failure to find de.metas:de.metas.parent:pom:(1.0.0,3) in (URL ...) was cached i
 						<artifactId>jasperreports-plugin</artifactId>
 						<version>2.0</version>
 						<configuration>
-				<!-- These are the default configurations: -->
+							<!-- These are the default configurations: -->
 							<compiler>net.sf.jasperreports.engine.design.JRJdtCompiler</compiler>
 							<sourceDirectory>src/main/jasperreports</sourceDirectory>
 							<outputDirectory>${project.build.directory}/jasper</outputDirectory>
