@@ -75,7 +75,7 @@ stage('Invoke downstream jobs')
 				 	false, // skipToDist=false; when we invoke the metasfresh build, we want it to do a full build
 				 	true, // triggerDownStreamBuilds=true; we want "everything" beeing build
 				 	true, // wait=true; if a downstream job fails with this parent pom then we want to know about it
-					'metasfresh-admin')
+					'metasfresh-admin-legacy')
 			},
 			metasfresh: {
 				misc.invokeDownStreamJobs(
@@ -85,7 +85,7 @@ stage('Invoke downstream jobs')
 				 	false, // skipToDist=false; when we invoke the metasfresh build, we want it to do a full build
 				 	true, // triggerDownStreamBuilds=true; we want "everything" beeing build
 				 	true, // wait=true; if a downstream job fails with this parent pom then we want to know about it
-					'metasfresh')
+					'metasfresh-legacy')
 			},
 			metasfresh_webui_frontend: {
 				misc.invokeDownStreamJobs(
@@ -95,7 +95,7 @@ stage('Invoke downstream jobs')
 				 	false, // skipToDist=false; when we invoke the metasfresh build, we want it to do a full build
 				 	false, // triggerDownStreamBuilds=false; we already started 'metasfresh' with triggerDownStreamBuilds=true
 				 	true, // wait=true; if a downstream job fails with this parent pom then we want to know about it
-					'metasfresh-webui-frontend')
+					'metasfresh-webui-frontend-legacy')
 			}
 		)
 	}
